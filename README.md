@@ -33,4 +33,6 @@ To run this project:
 
 4. To save result use save(out_dir, name) method.
 
+5. To use basic UI run translator in models directory.
+
 
