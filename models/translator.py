@@ -68,7 +68,6 @@ class GUI:
         self.next_button.pack()
 
     def create_second_window(self):
-        # self.create_window()
         self.current_window = tk.Toplevel()
 
         self.second_window = self.current_window
@@ -78,7 +77,6 @@ class GUI:
         self.translating_label = tk.Label(self.second_window, text="Translating...")
         self.translating_label.pack()
 
-        # Simulating code execution time
         self.model = model.ImageTranslator(self.file_path, "auto", self.language)
         self.model.run()
 
@@ -87,7 +85,6 @@ class GUI:
     def create_third_window(self):
         self.create_window()
 
-        # self.current_window = tk.Toplevel(self.root)
         self.current_window = tk.Toplevel()
         self.third_window = self.current_window
         self.current_window.attributes("-topmost", True)
