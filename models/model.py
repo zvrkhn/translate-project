@@ -260,10 +260,13 @@ class ImageTranslator:
         # plt.axis('off')
         # plt.show()
 
-    def preview(self):
-        plt.imshow(self.image)
-        plt.axis('off')
-        plt.show()
+    def preview(self, type = None):
+        if type == 'image':
+            self.image.show()
+        else:
+            plt.imshow(self.image)
+            plt.axis('off')
+            plt.show()
     
     def save(self, out_dir, name):
         self.image.save(out_dir + '/' + str(name) + '.png')
