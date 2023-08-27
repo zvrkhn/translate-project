@@ -10,7 +10,7 @@ For stable work of the model following libraries should be installed:
 1. [EasyOCR](https://github.com/JaidedAI/EasyOCR)
 2. [imutils](https://github.com/PyImageSearch/imutils)
 3. [translators](https://github.com/UlionTse/translators)
-4. NumPy
+4. [NumPy](https://numpy.org/)
 5. [Pillow (PIL)](https://python-pillow.org/)
 6. [matplotlib](https://matplotlib.org/)
 7. [(Optional for basic GUI) Tkinter](https://tcl.tk/man/tcl8.6/TkCmd/contents.htm)
