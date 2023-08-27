@@ -94,7 +94,7 @@ class ImageTranslator:
         then combine them into one paragraph
 
         """
-        # result = self.lines
+
         parHeight = []
         parWeight = []
         lines = [self.lines[0][1]]
@@ -137,7 +137,6 @@ class ImageTranslator:
             (topleft, topright, bottomright, bottomleft) = coord
             tx, ty = (int(topleft[0]), int(topleft[1]))
             bx, by = (int(bottomright[0]), int(bottomright[1]))
-        #   if outline != None or color != None:
             color = self.most_frequent_color_in_box([topleft, topright, bottomleft, bottomright])
             self.drawer.rectangle([(tx, ty), (bx, by)], fill = color, outline = outline)
 
@@ -256,9 +255,7 @@ class ImageTranslator:
         self.paragraphs, parHeights, parWeights = self.makeParagraphs()
         firstLineHeight = self.extrLineHeight()
         self.textWrite(parWeights, firstLineHeight, parHeights, color)
-        # plt.imshow(self.image)
-        # plt.axis('off')
-        # plt.show()
+
 
     def preview(self, type = None):
         if type == 'image':
@@ -270,8 +267,3 @@ class ImageTranslator:
     
     def save(self, out_dir, name):
         self.image.save(out_dir + '/' + str(name) + '.png')
-
-# if __name__ == "__main__":
-#     file_path = r'G:\My Drive\Own\image-to-text-translate\test-images\test_russian3.png'
-#     translator = ImageTranslator(file_path, from_language='auto', to_language='en')
-#     translator.run()
