@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 
 class ImageTranslator:
-    def __init__(self, file_path):
+    def __init__(self, file_path, from_language, to_language):
         self.file_path = file_path
         self.img = self.load_resize()
         self.image = Image.fromarray(self.img)
@@ -15,6 +15,16 @@ class ImageTranslator:
         self.result = self.reader.readtext(self.img)
         self.lines = []
         self.parahraphs = []
+        if from_language != None:
+            self.from_language = from_language
+        else:
+            self.from_language = 'auto'
+
+        if to_language != None:
+            self.to_language = to_language
+        else:
+            self.to_language = 'en'
+
 
     def load_resize(self):
         img = np.array(Image.open(self.file_path))
@@ -77,29 +87,30 @@ class ImageTranslator:
         self.lines = list(zip(coordinates, lines))
         return self.lines
 
-    def makeParagraphs(self, result):
+    def makeParagraphs(self):
         """
         THE MAIN IDEA:
         if difference between TOP LEFT y of the bottom box and BOTTOM RIGHT y of the top box is less than 5
         then combine them into one paragraph
 
         """
+        # result = self.lines
         parHeight = []
         parWeight = []
-        lines = [result[0][1]]
-        coordinates = [result[0][0]]
-        for i in range(1, len(result)):
-            diff_x = result[i][0][0][0] - coordinates[-1][1][0]
-            diff_y = result[i][0][0][1] - coordinates[-1][2][1]
+        lines = [self.lines[0][1]]
+        coordinates = [self.lines[0][0]]
+        for i in range(1, len(self.lines)):
+            diff_x = self.lines[i][0][0][0] - coordinates[-1][1][0]
+            diff_y = self.lines[i][0][0][1] - coordinates[-1][2][1]
             if diff_y < 5 and diff_x < 30:
-                lines[-1] += " " + result[i][1]
-                coordinates[-1] = self.makeParagraphsCoordinates(coordinates[-1], result[i][0])
+                lines[-1] += " " + self.lines[i][1]
+                coordinates[-1] = self.makeParagraphsCoordinates(coordinates[-1], self.lines[i][0])
 
             else:
                 parHeight.append(np.abs(coordinates[-1][0][1] - coordinates[-1][2][1]))
                 parWeight.append(np.abs(coordinates[-1][1][0] - coordinates[-1][0][0]))
-                lines.append(result[i][1])
-                coordinates.append(result[i][0])
+                lines.append(self.lines[i][1])
+                coordinates.append(self.lines[i][0])
         parHeight.append(np.abs(coordinates[-1][0][1] - coordinates[-1][2][1]))
         parWeight.append(np.abs(coordinates[-1][1][0] - coordinates[-1][0][0]))
         self.parahraphs = list(zip(coordinates, lines))
@@ -149,7 +160,7 @@ class ImageTranslator:
         return translate
 
 
-    def getCoordinates(text):
+    def getCoordinates(self, text):
         """
         Gets the coordinates of the text boxes
 
@@ -157,7 +168,7 @@ class ImageTranslator:
         coordinates = [i[0] for i in text]
         return coordinates
 
-    def isInParagraph(parCoords, lineCoords):
+    def isInParagraph(self, parCoords, lineCoords):
         """
         Checks if the paragraph is in the line
 
@@ -173,8 +184,10 @@ class ImageTranslator:
         Extracts the height of the first line of the paragraph
 
         """
-        parCoords = self.getCoordinates(self.paragraphs)
-        lineCoords = self.getCoordinates(self.lines)
+        par = self.parahraphs
+        parCoords = self.getCoordinates(par)
+        line = self.lines
+        lineCoords = self.getCoordinates(line)
         firstLineHeight = []
         for i in range(len(parCoords)):
             for j in range(len(lineCoords)):
@@ -220,20 +233,42 @@ class ImageTranslator:
             font = ImageFont.truetype("arial.ttf", int(fontsize))
         return lines, coords, font
     
-        def textWrite(self, text_to_write, wight, firstLineHeight, parHeights, from_language='auto', to_language='en'):
-            # Implementation of textWrite method
-    
-        def run(self):
-            text_to_translate = self.makeLines(self.result)
-            color = self.draw_boxes(outline=None, color="white")
-            text_to_translate_par, parHeights, parWeights = self.makeParagraphs(text_to_translate)
-            firstLineHeight = self.extrLineHeight(text_to_translate_par, text_to_translate)
-            self.textWrite(text_to_translate_par, parWeights, firstLineHeight, parHeights, from_language='auto', to_language='ru')
-            plt.imshow(self.image)
-            plt.axis('off')
-            plt.show()
+    def textWrite(self, wight, firstLineHeight, parHeights, color):
+        """
+        Function that puts translated text into the image
 
-if __name__ == "__main__":
-    file_path = r'G:\My Drive\Own\project\forum.png'
-    translator = ImageTranslator(file_path)
-    translator.run()
+        """
+
+        for i in range(len(self.parahraphs)):
+            translate = self.translator(self.parahraphs[i][1])
+
+            translate = [self.parahraphs[i][0], translate]
+            fontsize = int(parHeights[i] / (int(parHeights[i]/firstLineHeight[i])+1) * 0.9)
+            font = ImageFont.truetype("arial.ttf", fontsize)
+            lines, coords, new_font = self.textWrap(translate, firstLineHeight[i], wight[i], parHeights[i], font, fontsize)
+            font = new_font
+            for i in range(len(lines)):
+                self.drawer.text(coords[i], lines[i], fill=(255 - color[0], 255 - color[1], 255 - color[2]), font=font)
+
+    def run(self):
+        self.lines = self.makeLines()
+        color = self.draw_boxes(outline=None, color=None)
+        self.paragraphs, parHeights, parWeights = self.makeParagraphs()
+        firstLineHeight = self.extrLineHeight()
+        self.textWrite(parWeights, firstLineHeight, parHeights, color)
+        # plt.imshow(self.image)
+        # plt.axis('off')
+        # plt.show()
+
+    def preview(self):
+        plt.imshow(self.image)
+        plt.axis('off')
+        plt.show()
+    
+    def save(self, out_dir, name):
+        self.image.save(out_dir + '/' + str(name) + '.png')
+
+# if __name__ == "__main__":
+#     file_path = r'G:\My Drive\Own\image-to-text-translate\test-images\test_russian3.png'
+#     translator = ImageTranslator(file_path, from_language='auto', to_language='en')
+#     translator.run()
