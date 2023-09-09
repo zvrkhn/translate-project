@@ -18,14 +18,8 @@ For stable work of the model following libraries should be installed:
 
 To run this project:
 
-1. Install following libraries:
-- pip install easyocr
-- pip install imutils
-- pip install translators
-- pip install numpy
-- pip install Pillow
-- pip install matplotlib
-- pip install (Optional for basic GUI) Tkinter
+1. Install libraries from requirements.txt:
+- pip install -r requirements.txt
 
 2. Create ImageTranslator(file_path, from_language, to_language) object and use run() method to start translation.
 
