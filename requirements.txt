@@ -1,0 +1,7 @@
+easyocr
+imutils
+translators
+numpy
+Pillow
+matplotlib
+Tkinter
